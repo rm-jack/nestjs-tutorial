@@ -49,9 +49,10 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   async login(@Body() body, @Res({ passthrough: true }) res: Response) {
-    const payload = { useremail: body.email };
     const user = await this.authService.validateUser(body.email, body.password);
     if (user) {
+      const payload = { useremail: body.email, userid: user.id };
+      console.log(payload);
       const { access_token } = await this.authService.login(payload);
 
       return { ...user, access_token: access_token };
@@ -64,9 +65,9 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(@Req() req: Request, @Res() res: Response): any {
-    res.cookie('Authorization', '', {
-      maxAge: 0,
-    });
+    // res.cookie('Authorization', '', {
+    //   maxAge: 0,
+    // });
     return res.send({
       message: 'success',
     });

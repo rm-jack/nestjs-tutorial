@@ -22,9 +22,10 @@ let AuthController = class AuthController {
         this.authService = authService;
     }
     async login(body, res) {
-        const payload = { useremail: body.email };
         const user = await this.authService.validateUser(body.email, body.password);
         if (user) {
+            const payload = { useremail: body.email, userid: user.id };
+            console.log(payload);
             const { access_token } = await this.authService.login(payload);
             return Object.assign(Object.assign({}, user), { access_token: access_token });
         }
@@ -33,9 +34,6 @@ let AuthController = class AuthController {
         });
     }
     logout(req, res) {
-        res.cookie('Authorization', '', {
-            maxAge: 0,
-        });
         return res.send({
             message: 'success',
         });

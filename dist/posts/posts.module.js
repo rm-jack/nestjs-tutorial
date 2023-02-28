@@ -12,13 +12,27 @@ const posts_service_1 = require("./posts.service");
 const posts_controller_1 = require("./posts.controller");
 const typeorm_1 = require("@nestjs/typeorm");
 const post_entity_1 = require("./entities/post.entity");
+const user_entity_1 = require("../users/entities/user.entity");
+const auth_middleware_1 = require("../auth/auth.middleware");
+const auth_module_1 = require("../auth/auth.module");
+const users_module_1 = require("../users/users.module");
+const jwt_1 = require("@nestjs/jwt");
 let PostsModule = class PostsModule {
+    configure(consumer) {
+        consumer.apply(auth_middleware_1.AuthMiddleware).forRoutes({ path: 'posts/:id', method: common_1.RequestMethod.POST }, {
+            path: 'posts',
+            method: common_1.RequestMethod.POST,
+        }, {
+            path: 'posts',
+            method: common_1.RequestMethod.DELETE,
+        });
+    }
 };
 PostsModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([post_entity_1.Post])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([post_entity_1.Post, user_entity_1.User]), auth_module_1.AuthModule, users_module_1.UsersModule],
         controllers: [posts_controller_1.PostsController],
-        providers: [posts_service_1.PostsService],
+        providers: [posts_service_1.PostsService, jwt_1.JwtService],
     })
 ], PostsModule);
 exports.PostsModule = PostsModule;

@@ -10,6 +10,7 @@ import { Post } from './posts/entities/post.entity';
 import { APP_PIPE } from '@nestjs/core';
 import { ValidationPipe } from './pipes/validation.pipe';
 import { AuthModule } from './auth/auth.module';
+import { AuthMiddleware } from './auth/auth.middleware';
 
 @Module({
   imports: [

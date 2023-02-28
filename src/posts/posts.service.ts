@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -9,13 +10,30 @@ import { Post } from './entities/post.entity';
 export class PostsService {
   constructor(
     @InjectRepository(Post) private readonly postRepo: Repository<Post>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) {
     this.postRepo = postRepo;
   }
 
   async create(createPostDto: CreatePostDto): Promise<void> {
-    const newPost = this.postRepo.create(createPostDto);
-    await this.postRepo.save(newPost);
+    const post = this.postRepo.create(createPostDto);
+    const newPost = await this.postRepo.save(post);
+    console.log(createPostDto.userId);
+    let author = null;
+    try {
+      author = await this.userRepo.findOne({
+        where: { id: createPostDto.userId },
+        relations: ['posts'],
+      });
+      if (author === null) throw new BadRequestException();
+    } catch (error) {
+      console.log(error);
+    }
+    if (author) {
+      author.posts.push(newPost);
+      await this.userRepo.save(author);
+      return null;
+    }
   }
 
   async findAll(): Promise<Post[]> {
