@@ -1,9 +1,10 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { jwtConstants } from './constants';
-import { AuthService } from './auth.service';
-import { Request as RequestType } from 'express';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Repository } from 'typeorm';
 
 // const fromAuthCookie = () => {
 //   return function (request) {
@@ -15,23 +16,31 @@ import { Request as RequestType } from 'express';
 //   };
 // };
 
+interface IPayload {
+  useremail: string;
+  userid: string;
+}
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(@InjectRepository(User) private userRepo: Repository<User>) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([
-        (request: RequestType) => {
-          return request?.cookies?.Authorization;
-        },
-        ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ]),
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: jwtConstants.secret,
     });
   }
   //!! validate function is only called after successful validation of JWT.
-  async validate(payload: any) {
+  async validate(payLoad: IPayload) {
     console.log('I AM HERE');
-    return { id: payload.sub, email: payload.email };
+    //실제 유저가 있는지 확인하는 작업.
+    const { useremail } = payLoad;
+    const user: User = await this.userRepo.findOne({
+      where: { email: useremail },
+    });
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user;
   }
 }

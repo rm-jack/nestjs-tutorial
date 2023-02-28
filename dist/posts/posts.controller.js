@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const posts_service_1 = require("./posts.service");
 const create_post_dto_1 = require("./dto/create-post.dto");
 const update_post_dto_1 = require("./dto/update-post.dto");
-const public_decorator_1 = require("../public.decorator");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 let PostsController = class PostsController {
     constructor(postsService) {
         this.postsService = postsService;
@@ -40,20 +40,19 @@ let PostsController = class PostsController {
 };
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_post_dto_1.CreatePostDto]),
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "create", null);
 __decorate([
-    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "findAll", null);
 __decorate([
-    (0, public_decorator_1.Public)(),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -62,6 +61,7 @@ __decorate([
 ], PostsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -69,6 +69,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], PostsController.prototype, "update", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

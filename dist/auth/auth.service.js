@@ -37,10 +37,12 @@ let AuthService = class AuthService {
         }
         return null;
     }
-    async login(user) {
-        const payload = { useremail: user.email };
+    async login(payload) {
+        const payLoad = { useremail: payload.useremail, userid: payload.userid };
         return {
-            access_token: this.jwtService.sign(payload, { expiresIn: '6000' }),
+            access_token: this.jwtService.sign(payLoad, {
+                algorithm: 'HS256',
+            }),
         };
     }
 };
